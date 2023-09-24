@@ -14,6 +14,8 @@ public:
 
         Node(T data) : _data(data), _prev_node(nullptr), _next_node(nullptr)
         {};
+
+        T GetData() { return _data; }
     };
 
 public:
@@ -122,6 +124,79 @@ public:
         ++_size;
     }
 
+    void Insert(int index, T data)
+    {
+        if (index < 0 || index >= _size)
+        {
+            return;
+        }
+
+        Node* new_node = new MyList::Node(data);
+        new_node->_data = data;
+
+        if (index == 0)                 // 맨 앞쪽에 삽입되는 경우 (== Push_Front)
+        {
+            new_node->_next_node = _head;
+            _head->_prev_node = new_node;
+            _head = new_node;
+        }
+        else if (index == _size)        // 맨 뒤쪽에 삽입되는 경우 (== Push_Back)
+        {
+            _tail->_next_node = new_node;
+            new_node->_prev_node = _tail;
+            _tail = new_node;
+        }
+        else if (_head == nullptr)  // 헤드가 없는 경우
+        {
+            _head = new_node;
+            _tail = new_node;
+        }
+        else// 일반적인 케이스
+        {
+            Node* cur_node = _head;
+
+            for (int i = 0; i < index; ++i)
+            {
+                // 인덱스까지 순회 후 해당 노드 포인터 자리에 new node 교체
+                cur_node = cur_node->_next_node;
+            }
+
+            new_node->_prev_node = cur_node->_prev_node;
+            new_node->_next_node = cur_node;
+            cur_node->_prev_node->_next_node = new_node;
+            cur_node->_prev_node = new_node;
+        }
+
+
+        ++_size;
+        return;
+    }
+
+    T Find(int index)
+    {
+        Node* cur_node;
+
+        if (index + 1 <= _size / 2)
+        {
+            cur_node = _head;
+            for (int i = 0; i < index; ++i)
+            {
+                cur_node = cur_node->_next_node;
+            }
+
+        }
+        else
+        {
+            cur_node = _tail;
+            for (int i = 0; i < index; ++i)
+            {
+                cur_node = cur_node->_prev_node;
+            }
+
+        }
+
+        return cur_node->GetData();
+    }
 
     int Size()
     {
@@ -138,21 +213,21 @@ private:
 
 class Test
 {
+private:
+    int _int_data;
+    float _float_data;
+    char _char_data;
+
 public:
-    int int_data;
-    float float_data;
-    char char_data;
-
     Test(int a, float b, char c)
-        : int_data(a), float_data(b), char_data(c)
+        : _int_data(a), _float_data(b), _char_data(c)
     {
 
     }
 
-    void Func()
-    {
-        return;
-    }
+    int GetInt() { return _int_data; }
+    float GetFloat() { return _float_data; }
+    char GetChar() { return _char_data; }
 };
 
 int main()
@@ -175,22 +250,21 @@ int main()
     list.Push_front(Test(10, 0.025f, 'A'));
 
     // 반복자로 노드 포인터 이동
-    MyList<Test>::Iterator iter = MyList<Test>::Iterator(list.Begin());
-    ++iter;
-    ++iter;
-
+   // MyList<Test>::Iterator iter = MyList<Test>::Iterator(list.Begin());
+   // ++iter;
+   // ++iter;
+   //
     // 반복자의 현재 위치 노드 앞에 데이터 추가
-    list.Insert(iter, Test(35, 0.15f, 'D'));
+    list.Insert(2, Test(35, 0.15f, 'D'));
 
     // 반복자 순회로 모든 노드 표시
-    iter = MyList<Test>::Iterator(list.Begin());
-    int index = 0;
-    for (; iter._cur_node != nullptr; ++iter)
+    //iter = MyList<Test>::Iterator(list.Begin());
+   // int index = 0;
+    for (int index = 0; index < list.Size(); ++index)
     {
-        int data1 = iter._cur_node->_data.int_data;;
-        float data2 = iter._cur_node->_data.float_data;
-        char data3 = iter._cur_node->_data.char_data;
-        ++index;
+        int data1 = list.Find(index).GetInt();
+        float data2 = list.Find(index).GetFloat();
+        char data3 = list.Find(index).GetChar();
         printf("Index %d data : %d, %f, %c \n", index, data1, data2, data3);
     }
 }
